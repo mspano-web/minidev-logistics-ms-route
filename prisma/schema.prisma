@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Zones {
+  id          Int    @id @default(autoincrement())
+  description String
+
+  @@map("zones")
+}
+
+model RoutesHeader {
+  id             Int             @id @default(autoincrement())
+  created_date   DateTime        @default(now()) @db.Date
+  transport_id   Int
+  origin_id      Int
+  destination_id Int
+  zone_id        Int
+  time_started   DateTime?
+  time_end       DateTime?
+  cashDeposited  CashDepositType @default(PENDING)
+  routesDetails  RoutesDetails[]
+
+  @@map("routesheader")
+}
+
+model RoutesDetails {
+  id       Int          @id @default(autoincrement())
+  order_id Int
+  routeId  Int
+  route    RoutesHeader @relation(fields: [routeId], references: [id])
+
+  @@map("routesdetails")
+}
+
+enum DependencyType {
+  ORIGIN
+  DESTINY
+  OTHER
+}
+
+enum CashDepositType {
+  PENDING
+  DEPOSITED
+}
+
+
+model CompanyDependency {
+  id Int @id @default(autoincrement())
+  description String
+  dependencyType  DependencyType  @default(OTHER)
+  zone_id Int
+  address String
+  latitude  Float
+  longitude Float
+  
+  @@map("companydependency")
+}
